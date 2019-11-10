@@ -1,0 +1,83 @@
+GPFS(General Parallel File System ,IBM) 
+
+# install gpfs rpm packages
+tar xzvf gpfs.tar
+cd gpfs
+rpm -ivh kernel-3.10.0-693.21.1.el7.x86_64.rpm
+reboot
+cd gpfs/base
+yum -y install *.rpm
+cd gpfs/fp
+yum -y install *.rpm
+cd gpfs
+rpm -ivh gpfs.gplbin-3.10.0-693.21.1.el7.x86_64-4.1.1-11.2.x86_64.rpm
+
+# config mm commands
+cat >> /etc/profile << EOF
+export PATH=$PATH:/usr/lpp/mmfs/bin
+EOF
+
+source /etc/profile
+
+# config hosts and host trust
+cat >> /etc/hosts << EOF
+192.168.50.111 gpfs1
+192.168.50.112 gpfs2
+192.168.50.113 gpfs3
+EOF
+
+ssh-keygen
+ssh-copy-id
+
+# create gpfs cluster
+cat >> /etc/gpfsfile << EOF
+gpfs1:quorum-manager
+gpfs2:quorum-manager
+EOF
+
+mmcrcluster -N /etc/gpfsfile -p gpfs1 -s gpfs2 -C gpfs -r /usr/bin/ssh -R /usr/bin/scp
+
+-C cluster name
+-N nodes filename
+-p NSD master server
+-s NSD slave server
+-r -R Communication protocol
+
+# authorization
+mmchlicense server --accept -N gpfs1 pgfs2
+
+# config NSD
+cat >> /etc/nsdfile << EOF
+/dev/sda:gpfs1::dataAndMetadata:01:
+/dev/sdb:gpfs2::dataAndMetadata:02:
+
+# Generate NSD
+mmcrnsd -F /etc/nsdfile -v no
+
+# config arbitration
+mmchconfig tiebreakerDisks="gpfs1nsd;gpfs2nsd"
+
+# startup cluster
+mmstartup -a
+mmgetstate -a
+
+#create gpfs filesystem
+mmcrfs gpfs -F /etc/nsdfile -B 256K -A yes -m 2 -r 2 -T /gpfs -v no
+
+-F NSD filename
+-A auto mount
+-m metadata copy
+-r data copy
+-B block size
+-T mount point
+-v check disk exist filesystem
+
+# mount gpfs
+mmmount /gpfs -a 
+
+# reboot on
+mmchconfig autoload=yes
+
+mmlscluster
+mmlsnsd -a
+mmlsnode
