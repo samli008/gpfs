@@ -44,7 +44,7 @@ mmcrcluster -N /etc/gpfsfile -p gpfs1 -s gpfs2 -C gpfs -r /usr/bin/ssh -R /usr/b
 -r -R Communication protocol
 
 # authorization
-mmchlicense server --accept -N gpfs1 pgfs2
+mmchlicense server --accept -N gpfs1 gpfs2
 
 # config NSD
 cat >> /etc/nsdfile << EOF
