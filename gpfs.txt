@@ -50,9 +50,13 @@ mmchlicense server --accept -N gpfs1,gpfs2
 cat >> /etc/nsdfile << EOF
 /dev/sda:gpfs1::dataAndMetadata:01:
 /dev/sdb:gpfs2::dataAndMetadata:02:
+EOF
 
 # Generate NSD
 mmcrnsd -F /etc/nsdfile -v no
+
+#add nsd
+mmadddisk gpfs -F /etc/nsdfile
 
 # config arbitration
 mmchconfig tiebreakerDisks="gpfs1nsd;gpfs2nsd"
@@ -81,3 +85,10 @@ mmchconfig autoload=yes
 mmlscluster
 mmlsnsd -a
 mmlsnode
+
+#delete gpfs cluster
+mmumount all -a
+mmdelfs gpfs
+mmdelnsd gpfs1nsd
+mmshutdown -a
+mmdelnode -a
