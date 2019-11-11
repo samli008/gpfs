@@ -82,9 +82,15 @@ mmmount /gpfs -a
 # reboot on
 mmchconfig autoload=yes
 
+#add node
 mmlscluster
 mmlsnsd -a
 mmlsnode
+mmaddnode -N gpfs3
+mmchlicense server --accept -N gpfs3
+mmgetstate -N gpfs3
+mmstartup -N gpfs3
+mmgetstate -a
 
 #delete gpfs cluster
 mmumount all -a
