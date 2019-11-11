@@ -48,8 +48,9 @@ mmchlicense server --accept -N gpfs1,gpfs2
 
 # config NSD
 cat >> /etc/nsdfile << EOF
-/dev/sda:gpfs1::dataAndMetadata:01:
-/dev/sdb:gpfs2::dataAndMetadata:02:
+/dev/vdb:gpfs1::dataAndMetadata:01:
+/dev/vdb:gpfs2::dataAndMetadata:02:
+/dev/vdb:gpfs3::dataAndMetadata:03:
 EOF
 
 # Generate NSD
