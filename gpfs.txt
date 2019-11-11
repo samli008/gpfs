@@ -92,3 +92,6 @@ mmdelfs gpfs
 mmdelnsd gpfs1nsd
 mmshutdown -a
 mmdelnode -a
+
+#rebalance gpfs
+mmrestripefs gpfs -b
