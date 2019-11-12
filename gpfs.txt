@@ -87,6 +87,7 @@ mmchconfig autoload=yes
 #add node
 mmlscluster
 mmlsnsd -a
+mmlsnsd -m
 mmlsnode
 mmaddnode -N gpfs3
 mmchlicense server --accept -N gpfs3
