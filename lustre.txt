@@ -1,0 +1,44 @@
+cat >> lustre.repo << EOF
+[lustre]
+name=lustre
+baseurl=file:///root/lustre
+enabled=1
+gpgcheck=0
+EOF
+
+# on server
+yum -y install kernel
+reboot
+
+yum -y install kmod-lustre lustre-osd-ldiskfs-mount kmod-lustre-osd-ldiskfs lustre-dkms lustre
+
+modprobe lustre
+modprobe ldiskfs
+
+# on client
+yum -y install lustre-client
+modprobe lustre
+
+# create metadata node1
+mkfs.lustre --fsname=lustrefs --mgs --mdt --index=0 /dev/sdb
+mount.lustre /dev/sdb /mnt/mdt
+
+# create ost node2
+mkfs.lustre --fsname=lustrefs --mgsnode=node1@tcp --ost --index=0 /dev/sdb
+mount.lustre /dev/sdb /mnt/ost0
+
+# create ost node3
+mkfs.lustre --fsname=lustrefs --mgsnode=node1@tcp --ost --index=1 /dev/sdb
+mount.lustre /dev/sdb /mnt/ost1
+
+# on client
+mount.lustre node1@tcp:/lustrefs /mnt
+
+# view lustre version
+lctl get_param version
+
+# view quota
+lfs quota mountpoint
+
+# view lustre status
+lctl dl
