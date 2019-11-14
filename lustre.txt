@@ -42,3 +42,15 @@ lfs quota mountpoint
 
 # view lustre status
 lctl dl
+
+# view lustrefs
+[root@gpfs1 ~]# lfs df -h
+UUID                       bytes        Used   Available Use% Mounted on
+lustrefs-MDT0000_UUID      162.3G       77.6M      148.3G   0% /mnt[MDT:0]
+lustrefs-OST0000_UUID      274.8G       64.0M      260.7G   0% /mnt[OST:0]
+lustrefs-OST0001_UUID      274.6G       64.0M      260.5G   0% /mnt[OST:1]
+lustrefs-OST0002_UUID      274.6G        4.9G      255.7G   2% /mnt[OST:2]
+lustrefs-OST0003_UUID      274.3G       64.0M      260.2G   0% /mnt[OST:3]
+lustrefs-OST0004_UUID      274.3G       64.0M      260.2G   0% /mnt[OST:4]
+
+filesystem_summary:         1.3T        5.2G        1.3T   0% /mnt
