@@ -58,3 +58,19 @@ filesystem_summary:       446.2T       19.5G      423.7T   0% /data
 
 [root@node1 ~]# lctl get_param version
 version=2.10.1
+
+cat >> /etc/rc.local << EOF
+modprobe lustre
+modprobe ldiskfs
+sleep 5
+mount.lustre /dev/mapper/mdt /mdt
+sleep 5
+mount.lustre /dev/mapper/ost0 /ost0
+mount.lustre /dev/mapper/ost1 /ost1
+mount.lustre /dev/mapper/ost2 /ost2
+mount.lustre /dev/mapper/ost3 /ost3
+mount.lustre /dev/mapper/ost4 /ost4
+mount.lustre /dev/mapper/ost5 /ost5
+EOF
+
+chmod 755 /etc/rc.d/rc.local
