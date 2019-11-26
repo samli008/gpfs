@@ -1,0 +1,123 @@
+# config ssh-keygen and hosts
+# add sgeadmin user on all nodes
+groupadd -g 490 sgeadmin
+useradd -u 495 -g 490 -r -m -d /home/sgeadmin -s /bin/bash -c "SGE Admin" sgeadmin
+visudo
+%sgeadmin ALL=(ALL) NOPASSWD: ALL
+
+# Install dependency package on all nodes
+yum -y install jemalloc-devel openssl-devel ncurses-devel pam-devel libXmu-devel hwloc-devel hwloc hwloc-libs java-devel javacc ant-junit libdb-devel motif-devel csh ksh xterm db4-utils perl-XML-Simple perl-Env xorg-x11-fonts-ISO8859-1-100dpi xorg-x11-fonts-ISO8859-1-75dpi
+
+# config share storage mount point /mfs on all nodes
+# on master node
+mkdir -p /mfs/src
+cd /mfs/src
+wget https://arc.liv.ac.uk/downloads/SGE/releases/8.1.9/sge-8.1.9.tar.gz
+tar -zxvf sge-8.1.9.tar.gz
+cd sge-8.1.9/source/
+sh scripts/bootstrap.sh && ./aimk -no-java && ./aimk -man
+export SGE_ROOT=/mfs/gridengine && mkdir $SGE_ROOT
+echo Y | ./scripts/distinst -local -allall -libs -noexit
+chown -R sgeadmin:sgeadmin /mfs/gridengine
+cd $SGE_ROOT
+./install_qmaster
+
+cp /mfs/gridengine/default/common/settings.sh /etc/profile.d/
+qconf -ah node1
+
+# on exec node
+groupadd -g 490 sgeadmin
+useradd -u 495 -g 490 -r -m -d /home/sgeadmin -s /bin/bash -c "SGE Admin" sgeadmin
+yum -y install hwloc-devel
+
+export SGE_ROOT=/mfs/gridengine
+export SGE_CELL=default
+cd $SGE_ROOT
+./install_execd
+
+cp /mfs/gridengine/default/common/settings.sh /etc/profile.d/
+
+使用命令
+#qstat -u "*"         	显示所有人的任务
+#qhost                  显示所有资源信息
+#qhost -q             	显示节点是否离线 au异常
+#qdel jobsID          	杀掉某个任务
+#qdel -u "user"      	杀掉某用户所有任务
+#qconf -ah client1  	添加主机到sge集群
+#qconf -as server  	添加主机为submit
+#qconf -sh            	查看集群有哪些主机
+#qconf -sql           	查看所有队列
+
+添加队列的方法
+#qconf -ahgrp @allcu 添加节点组
+group_name @allcu
+hostlist hcu-0001 hcu-0002 hcu-0003 hcu-0004 hcu-0005
+
+用户管理
+qconf -suserl     # 查看当前用户
+qconf -auser      # 添加用户
+
+输入命令后，会出现一个vi编辑器，将编辑器中的“template”替换成要添加的用户名即可，会自动同步到所有节点
+name template
+oticket 0
+fshare 0
+delete_time 0
+default_project NONE
+
+主机管理
+qconf -sel     # 查看执行主机列表
+qconf -ss      # 查看提交主机列表
+qconf -sh      # 查看管理主机列表
+
+1）命令行配置执行主机 
+qconf -ae hostname 添加执行主机（前提：该主机首先要安装了执行进程） 
+qconf -de hostname 删除执行主机 
+qconf -sel         显示执行主机列表
+
+2）命令行配置管理主机 
+qconf -ah hostname 添加管理主机 
+qconf -dh hostname 删除管理主机 
+qconf -sh          显示管理主机列表 
+
+3）命令行配置提交主机 
+qconf -as hostname 添加提交主机 
+qconf -ds hostname 删除提交主机 
+qconf -ss          显示提交主机列表 
+
+4）命令行配置队列 
+qconf -aq queuename 添加集群队列 
+qconf -dq queuename 删除集群队列 
+qconf -mq queuename 修改集群队列配置 
+qconf -sq queuename 显示集群队列配置 
+qconf -sql          显示集群队列列表 
+
+5）命令行配置用户组 
+qconf -ahgrp groupname  # 添加用户组 
+qconf -mhgrp groupname  # 修改用户组成员 
+qconf -shgrp groupname  # 显示用户组成员
+
+qconf -shgrp @allhosts  # 举例
+
+qhost
+qhost          # 此命令显示Sun Grid Engine 执行主机的状态信息
+qhost -q
+BIP 正常
+E 错误状态
+a 警告(a generic indicator of badness)
+u 无法连接
+d 被管理员设置无法使用
+
+可以通过下列方法对某个队列上的的节点进行操作
+清除错误              qmod -c all.q@cca-train02
+设置节点不可用    qmod -d all.q@cca-train02
+设置节点可用       qmod -e all.q@cca-train02
+重启节点，详细操作见后
+查看进程运行情况qstat -f
+
+
+任务管理
+# 查看任务状态
+qstat -f
+
+cd /mfs/src/sge-8.1.9/source/dist/examples/jobs
+qsub -t 1-16:1 simple.sh     # 提交16个任务
