@@ -74,3 +74,11 @@ mount.lustre /dev/mapper/ost5 /ost5
 EOF
 
 chmod 755 /etc/rc.d/rc.local
+
+lctl ping mdt@tcp
+lctl list_nids
+
+lnetctl lnet configure #init kernel Lnet service
+lnetctl net show
+lnetctl net del --net tcp
+lnetctl net add --net tcp --if p2p2
