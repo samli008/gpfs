@@ -82,3 +82,7 @@ lnetctl lnet configure #init kernel Lnet service
 lnetctl net show
 lnetctl net del --net tcp
 lnetctl net add --net tcp --if p2p2
+
+cat >> /etc/modprobe.d/lustre.conf << EOF 
+options lnet networks="tcp(eth4)"
+EOF
