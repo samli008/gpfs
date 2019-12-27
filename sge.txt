@@ -22,6 +22,10 @@ chown -R sgeadmin:sgeadmin /mfs/gridengine
 cd $SGE_ROOT
 ./install_qmaster
 
+cd /etc/init.d/
+./sgemaster.p6444 start
+chkconfig sgemaster.p6444 on
+
 cp /mfs/gridengine/default/common/settings.sh /etc/profile.d/
 qconf -ah node1
 
@@ -34,6 +38,10 @@ export SGE_ROOT=/mfs/gridengine
 export SGE_CELL=default
 cd $SGE_ROOT
 ./install_execd
+
+cd /etc/init.d/
+./sgeexecd.p6444 start
+chkconfig sgeexecd.p6444 on
 
 cp /mfs/gridengine/default/common/settings.sh /etc/profile.d/
 
